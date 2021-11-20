@@ -2,7 +2,7 @@
 #include <Windows.h>
 #include <string>
 
-struct ComponentListNode //doubly link list
+struct ComponentListNode //doubly link list - pre 3.16
 {
 	UINT64 NextPtr;
 	UINT64 PrevPtr;
@@ -14,10 +14,8 @@ struct ComponentListNode //doubly link list
 	char Name[50];
 };
 
-struct NewComponentListNode
+struct NewComponentListNode //as of 3.16 we no longer are given a doublelink list, but instead some gross blob of non-contiguous memory at +0x30, +0x30 of entity.
 {
-	UINT64 dwJunk1;
-
 	UINT64 IndexPtr;
 	UINT32 Index;
 
