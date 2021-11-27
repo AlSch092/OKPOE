@@ -43,7 +43,7 @@ void Scripting::initializeLUA()
 	lua_register(Robot->LUAController,  "Revive", Scripting::RevivePlayer);
 
 
-	//Positioned::Component for all entities and local player
+
 	lua_register(Robot->LUAController,  "Action", Scripting::SendCharacterAction); //same as moveto with diff parameters, meant for skill casting
 	lua_register(Robot->LUAController,  "Move", Scripting::MoveToPosition);
 	lua_register(Robot->LUAController, "EndAction", Scripting::EndAction);
@@ -56,6 +56,7 @@ void Scripting::initializeLUA()
 	lua_register(Robot->LUAController, "EnterAreaTransitions", Scripting::EnterAreaTransitions);
 	lua_register(Robot->LUAController, "UseWaypoint", Scripting::UseWaypoint);
 	lua_register(Robot->LUAController, "SelectInstance", Scripting::SelectInstance);
+	lua_register(Robot->LUAController, "SpawnMapInstance", Scripting::SpawnAtlasPortals);
 
 	//Targetable::
 	lua_register(Robot->LUAController, "Targetable", Scripting::IsEntityTargetable);
@@ -80,6 +81,7 @@ void Scripting::initializeLUA()
 	lua_register(Robot->LUAController, "StartDelvePathing", Scripting::StartDelveNode);
 	lua_register(Robot->LUAController, "BlightTower", Scripting::VisitDelveNode);
 
+
 	lua_register(Robot->LUAController, "GetItemSockets", Scripting::GetItemSockets);
 	lua_register(Robot->LUAController, "IsItemFullyLinked", Scripting::IsItemFullyLinked);
 
@@ -90,13 +92,19 @@ void Scripting::initializeLUA()
 	lua_register(Robot->LUAController, "SelectNPCDialog", Scripting::SelectNPCDialog);
 
 	lua_register(Robot->LUAController, "AcceptTrade", Scripting::AcceptTrade);
-	lua_register(Robot->LUAController, "PlaceItemInTrade", Scripting::PlaceItemInTrade);
+	lua_register(Robot->LUAController, "PlaceItemInTrade", Scripting::PlaceItemInTrade); //possibly duplicte of inventorytowindow
 	lua_register(Robot->LUAController, "CancelTrade", Scripting::CancelTrade);
 
 	lua_register(Robot->LUAController, "BlightTower", Scripting::BlightTower);
 	lua_register(Robot->LUAController, "PlaceExplosives", Scripting::PlaceExplosive);
 
 	lua_register(Robot->LUAController, "DiscardEntity", Scripting::DiscardEntity);
+
+	lua_register(Robot->LUAController, "WindowItemToInventory", Scripting::WindowToInventory_Item);
+	lua_register(Robot->LUAController, "InventoryItemToWindow", Scripting::InventoryToWindow_Item);
+
+	lua_register(Robot->LUAController, "GetElements", Scripting::ReadAllElements);
+	lua_register(Robot->LUAController, "ReadInventoryItems", Scripting::ReadInventoryItems);
 
 	lua_register(Robot->LUAController, "UnloadOKPOE", Scripting::UnloadDLL);
 }
@@ -197,7 +205,7 @@ static int Scripting::EntityInteraction(lua_State* LUAState)
 	UINT64 SendClass = GetSendClass();
 	if (SendClass != NULL)
 	{
-		PacketWriter* p = PacketBuilder::EntityInteraction(EntityID);
+		PacketWriter* p = PacketBuilder::EntityInteraction(EntityID, 0x266);
 		SendPacket(SendClass, (LPBYTE)p->GetBuffer(), p->GetSize());
 
 		delete[] p->GetBuffer();
@@ -825,7 +833,7 @@ static int Scripting::LootGroundItems(lua_State* L)
 		{
 			while (Targetable::IsTargetable(e))
 			{
-				PacketWriter* p = PacketBuilder::EntityInteraction(e->GetUniqueID());
+				PacketWriter* p = PacketBuilder::EntityInteraction(e->GetUniqueID(), 0x0266);
 				UINT64 SendClass = GetSendClass();
 				if (SendClass != NULL)
 				{
@@ -1216,5 +1224,67 @@ static int Scripting::IsCharacterStuck(lua_State* L)
 
 
 
+	return 1;
+}
+
+static int Scripting::SpawnAtlasPortals(lua_State* L)
+{
+	//SpawnAtlasInstance(UINT16 ItemIndex, byte listSelection, byte callingMaven, byte masterSelection);
+	short itemIndex = lua_tointeger(L, 1);
+	byte listSelection = lua_tointeger(L, 2);
+	byte callingMaven = lua_tointeger(L, 3);
+	byte callingMaster = lua_tointeger(L, 4);
+
+	PacketWriter* p = PacketBuilder::SpawnAtlasInstance(itemIndex, listSelection, callingMaven, callingMaster);
+	UINT64 SendClass = GetSendClass();
+
+	if (SendClass != NULL)
+	{
+		SendPacket(SendClass, (LPBYTE)p->GetBuffer(), p->GetSize());
+	}
+
+	return 0;
+}
+
+static int Scripting::InventoryToWindow_Item(lua_State* L)
+{
+	uint32_t index = lua_tointeger(L, 1);
+
+	PacketWriter* p = PacketBuilder::InventoryToWindow(index);
+	UINT64 SendClass = GetSendClass();
+
+	if (SendClass != NULL)
+	{
+		SendPacket(SendClass, (LPBYTE)p->GetBuffer(), p->GetSize());
+	}
+
+
+	return 0;
+}
+
+static int Scripting::WindowToInventory_Item(lua_State* L)
+{
+	uint32_t index = lua_tointeger(L, 1);
+
+	PacketWriter* p = PacketBuilder::WindowToInventory(index);
+	UINT64 SendClass = GetSendClass();
+
+	if (SendClass != NULL)
+	{
+		SendPacket(SendClass, (LPBYTE)p->GetBuffer(), p->GetSize());
+	}
+
+	return 0;
+}
+
+static int Scripting::ReadInventoryItems(lua_State* L)
+{
+
+	return 0;
+}
+
+static int Scripting::ReadAllElements(lua_State* L)
+{
+	Element::GetAllElements();
 	return 0;
 }
