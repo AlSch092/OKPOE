@@ -105,7 +105,7 @@ void Entity::Initialize(UINT64 EntityAddress)
 	}
 }
 
-void Entity::SetComponentLookup(UINT64 Address) //broken...
+void Entity::SetComponentLookup(UINT64 Address)
 {
 	if (Address >= 0)
 	{
