@@ -5,9 +5,7 @@ void Element::GetAllElements()
 {
 	UINT64 poeBase = (UINT64)GetModuleHandleA(NULL);
 	UINT64 StatePtr = DereferenceSafe<UINT64>(poeBase + Offsets::IngameState);
-	UINT64 HoverElementAddr = 0;
-	UINT64 RootElement = 0;
-	UINT64 ChildElementList = 0;
+	UINT64 HoverElementAddr, RootElement, ChildElementList = 0;
 
 	if (StatePtr != NULL)
 	{
