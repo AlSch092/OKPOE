@@ -1,6 +1,8 @@
 #include "Inventory.hpp"
 
-Inventory::Item* Inventory::GetInventoryItem(UINT64 ElementAddr)
+extern AutoPlayer* Robot;
+
+Inventory::Item* NormalInventory::GetInventoryItem(UINT64 ElementAddr)
 {
 	Inventory::Item* item = new Inventory::Item();
 	
@@ -22,7 +24,7 @@ Inventory::Item* Inventory::GetInventoryItem(UINT64 ElementAddr)
 			item->isHovered = DereferenceSafe<byte>(IsHovered);
 
 			item->ItemEnt = new Entity(EntityAddr);
-			item->ItemEnt->FillComponentList(); //needed for stack size
+			item->ItemEnt->FillComponentList(); //might not be needed.. perhaps for advanced infos
 		}
 	}
 
@@ -65,7 +67,6 @@ std::list<Inventory::Item*> NormalInventory::GetInventoryItems()
 
 						if (EntityAddr != NULL && (EntityAddr > 0x010000000000 && EntityAddr < 0x030000000000))
 						{
-
 							int inventoryX = DereferenceSafe<int>(ChildElement + Element::CellXOffset);
 							int inventoryY = DereferenceSafe<int>(ChildElement + Element::CellYOffset);
 
@@ -79,6 +80,8 @@ std::list<Inventory::Item*> NormalInventory::GetInventoryItems()
 								im->CellY = inventoryY;
 								im->Height = sizeY;
 								im->Width = sizeX;
+								im->StashPage = 0;
+								im->MemoryAddress = ChildElement;
 								im->ItemEnt = new Entity(EntityAddr);
 								im->ItemEnt->FillComponentList();
 
@@ -109,6 +112,7 @@ std::list<Inventory::Item*> NormalInventory::GetInventoryItems()
 
 	return itms;
 }
+
 
 std::list<Inventory::Item*> CurrencyInventory::GetInventoryItems()
 {
@@ -176,6 +180,8 @@ std::list<Inventory::Item*> CurrencyInventory::GetInventoryItems()
 											im->CellY = inventoryY;
 											im->Height = sizeY;
 											im->Width = sizeX;
+											im->StashPage = 0;
+											im->MemoryAddress = ChildChildElement;
 											im->ItemEnt = new Entity(EntityAddr);
 											im->ItemEnt->FillComponentList();
 
@@ -209,4 +215,92 @@ std::list<Inventory::Item*> CurrencyInventory::GetInventoryItems()
 	}
 
 	return itms;
+}
+
+std::list<Inventory::Item*> StashInventory::GetInventoryItemsAtTab(int index)
+{
+	UINT64 poeBase = (UINT64)GetModuleHandleA(NULL);
+	UINT64 ElementRoot = DereferenceSafe<UINT64>(poeBase + Offsets::PtrInventoryElement);
+	
+	std::list<Inventory::Item*> itms;
+
+	if (ElementRoot != NULL)
+	{
+		UINT64 ChildElement = DereferenceSafe<UINT64>(ElementRoot + Inventory::StashTab1Offset + (index * sizeof(UINT64)));
+
+		if (ChildElement != NULL)
+		{
+			UINT64 ChildElementList = DereferenceSafe<UINT64>(ChildElement + Element::ChildsOffset);
+			UINT64 ChildElementEnd = DereferenceSafe<UINT64>(ChildElement + Element::ChildEndOffset);
+
+			INT nElements = (ChildElementEnd - ChildElementList) / sizeof(UINT64);
+
+			printf("nElements: %d, Inventory base: %llX, childList: %llX, end: %llX \n", nElements, ChildElement, ChildElementList, ChildElementEnd);
+
+			for (int i = 1; i < nElements; i++) //first one has no entity, atleast for normalinv
+			{
+				UINT64 Child = DereferenceSafe<UINT64>(ChildElementList + (i * sizeof(UINT64)));
+
+				if (Child != NULL) //
+				{
+					UINT64 EntityAddr = DereferenceSafe<UINT64>(Child + Element::EntityOffset);
+
+					if (EntityAddr != NULL && (EntityAddr > 0x010000000000 && EntityAddr < 0x050000000000)) //incase some other stupid address is in the slot
+					{
+						int inventoryX = DereferenceSafe<int>(Child + Element::CellXOffset);
+						int inventoryY = DereferenceSafe<int>(Child + Element::CellYOffset);
+
+						int sizeX = DereferenceSafe<int>(Child + Element::CellWidthOffset);
+						int sizeY = DereferenceSafe<int>(Child + Element::CellHeightOffset);
+
+						if (sizeX > 0 && sizeY > 0)
+						{
+							Inventory::Item* im = new Inventory::Item();
+							im->CellX = inventoryX;
+							im->CellY = inventoryY;
+							im->Height = sizeY;
+							im->Width = sizeX;
+							im->ItemEnt = new Entity(EntityAddr);
+							im->ItemEnt->FillComponentList();
+							im->StashPage = index;
+
+							if (im->ItemEnt->GetComponentAddress("Stack") > NULL)
+							{
+								int size = Stack::GetStackSize(im->ItemEnt);
+								printf("Stack size: %d\n", size);
+							}
+
+							itms.push_back(im);
+
+							printf("\t Cell %d,%d: Child Element at: %llX (Entity %llX)\n", inventoryX, inventoryY, Child, EntityAddr);
+						}
+					}
+					else
+					{
+						printf("\t Child Element at: %llX \n", Child);
+					}
+				}
+				else
+				{
+					printf("ChildElement was NULL.\n", ChildElement);
+				}
+			}
+		}
+	}
+
+	return itms;
+
+}
+
+void StashInventory::ForceLoadTab(int index)
+{
+	PacketWriter* p = PacketBuilder::ChangeCurrentStashTab(index);
+	UINT64 SendClass = GetSendClass();
+
+	if (SendClass != NULL)
+	{
+		SendPacket(SendClass, (LPBYTE)p->GetBuffer(), p->GetSize());
+	}
+
+	delete p;
 }
