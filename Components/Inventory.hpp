@@ -1,18 +1,28 @@
 #pragma once
 #include "Element.hpp"
+#include "AutoPlayer.hpp"
 
 namespace Inventory //inherited class from elemnt
 {
-	static const UINT64 ElementId = 0x420;
+	static const UINT64 PickupIndex = 0x420;
 	static const UINT64 EntityOffset = 0x428;
 	static const UINT64 CellXOffset = 0x430;
 	static const UINT64 CellYOffset = CellXOffset + 4;
 	static const UINT64 CellWidthOffset = 0x438;
 	static const UINT64 CellHeightOffset = CellWidthOffset + 4;
 	static const UINT64 IsHoveredOffset = 0x496;
-	static const UINT16 AffinityFlagsOffset = 0x4D0;
+	static const UINT64 AffinityFlagsOffset = 0x4D0;
 
-	enum InventoryTabPermissions : byte  //ty exileAPI for these enums
+	//this ptr will have most if not all important windows, gg
+	static const UINT64 CurrencyTabOffset = 0x4D0; //redo this for hopefully a smaller solution
+	static const UINT64 StashTab1Offset = 0x6B8; //+8 for each tab..
+	static const UINT64 StashTab2Offset = StashTab1Offset + 8;
+	static const UINT64 StashTab3Offset = StashTab2Offset + 8;
+	static const UINT64 StashTab4Offset = StashTab3Offset + 8;
+
+
+
+	enum InventoryTabPermissions : byte
 	{
 		None = 0,
 		View = 1,
@@ -32,7 +42,7 @@ namespace Inventory //inherited class from elemnt
 		Hidden = 0x80
 	};
 
-	enum InventoryTabAffinityFlags : short //0x4B0 offset
+	enum InventoryTabAffinityFlags : short
 	{
 		Currency = 0x0008,
 		Unique = 0x0010,
@@ -54,7 +64,10 @@ namespace Inventory //inherited class from elemnt
 		int Height;
 		int Width;
 		bool isHovered;
-	};	
+		int StashPage;
+		uint64_t MemoryAddress;
+	};
+	
 }
 
 class InventoryBase : ElementBase
@@ -66,10 +79,10 @@ public:
 
 	//virtual std::list<Inventory::Item*> GetInventoryItems();
 
-
 	std::list<Inventory::Item*> Items;
 	UINT64 ElementAddress;
-  UINT32 ElementId;
+
+
 };
 
 class NormalInventory : public InventoryBase
@@ -84,11 +97,14 @@ public:
 
 	UINT16 GetAffinityFlags(UINT64 ElementAddr) { UINT16 af = DereferenceSafe<UINT16>(ElementAddr + Inventory::AffinityFlagsOffset); return af; }
 	std::list<Inventory::Item*> GetInventoryItems();
+	Inventory::Item* GetInventoryItem(UINT64 StructAddr);
+
+
 
 private:
 	Inventory::InventoryTabPermissions Permissions;
 	Inventory::InventoryTabFlags Flags;
-	Inventory::InventoryTabAffinityFlags AffinityFlags; //more or less typeOf
+	Inventory::InventoryTabAffinityFlags AffinityFlags;
 
 };
 
@@ -99,10 +115,12 @@ public:
 private:
 	Inventory::InventoryTabPermissions Permissions;
 	Inventory::InventoryTabFlags Flags;
-	Inventory::InventoryTabAffinityFlags AffinityFlags; //more or less typeOf
+	Inventory::InventoryTabAffinityFlags AffinityFlags;
 };
 
-class StashInventory : public InventoryBase
+class StashInventory : public NormalInventory
 {
-
+public:
+	std::list<Inventory::Item*> GetInventoryItemsAtTab(int index);
+	void ForceLoadTab(int index);
 };
