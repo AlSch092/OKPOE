@@ -62,7 +62,6 @@ void Entity::Initialize(UINT64 EntityAddress)
 						int X = this->GetVector2().X;
 						int Y = this->GetVector2().Y;
 
-						FileIO::Log("=== Entity Created === \n");
 						FileIO::Log("Base Address: %llX\n", Addr);
 						FileIO::WLog(L"File: %s\n", this->FilePath.c_str());
 						FileIO::Log("Component List: %llX\n", this->ComponentListAddress);
@@ -94,9 +93,6 @@ void Entity::Initialize(UINT64 EntityAddress)
 						{						
 							Robot->EntityList.push_back(this); //push entities we want to save or may need for scripting
 						}
-
-						FileIO::Log("====================== \n");
-
 					}					
 				}
 
@@ -167,10 +163,6 @@ void Entity::FillComponentList() //most common cause of crashing at 3.16
 
 				CLN->NamePtrAddress = DereferenceSafe<UINT64>(CLN->NamePtrAddress);
 				CLN->Index = DereferenceSafe<UINT32>(CLN->IndexPtr);
-
-				//FileIO::Log("[DEBUG] Name Address: %llX\n", CLN->NamePtrAddress);
-				//FileIO::Log("[DEBUG] Index Address: %llX\n", CLN->IndexPtr);
-				//FileIO::Log("[DEBUG] Index: %d\n", CLN->Index);
 
 				if (DereferenceSafe<UINT64>(CLN->IndexPtr) != NULL)
 				{
@@ -280,7 +272,7 @@ Entity* Entity::GetSubObjectEntity()
 		return NULL;
 	}
 
-	ComponentAddr = ComponentAddr + 0x28;// +0x28;
+	ComponentAddr = ComponentAddr + Offsets::WorldItemEntityOffset;
 	ComponentAddr = DereferenceSafe<UINT64>(ComponentAddr);
 
 	Entity* e = new Entity(ComponentAddr);
@@ -296,31 +288,31 @@ Vector2 Entity::GetVector2()
 		return{ 0, 0 };
 	}
 
-	int x = DereferenceSafe<int>(ComponentAddr + 0x1E8); //maybe include postioned and use offsets inthere
-	int y = DereferenceSafe<int>(ComponentAddr + 0x1EC);
+	int x = DereferenceSafe<int>(ComponentAddr + Offsets::Positioned::X); //maybe include postioned and use offsets inthere
+	int y = DereferenceSafe<int>(ComponentAddr + Offsets::Positioned::Y);
 	
 	return {x,y};
 }
 
-bool Entity::IsTargetable() //0x50 = isHovering
+bool Entity::IsTargetable()
 {
 	UINT64 ComponentAddr = this->GetComponentAddress("Targetable");
 
 	if (ComponentAddr == NULL)
 		return false;
 
-	BYTE Targetable = DereferenceSafe<BYTE>(ComponentAddr + 0x48);
+	BYTE Targetable = DereferenceSafe<BYTE>(ComponentAddr + Offsets::Targetable::IsTargetable);
 	return Targetable;
 }
 
-bool Entity::IsHovered() //0x50 = isHovering
+bool Entity::IsHovered() 
 {
 	UINT64 ComponentAddr = this->GetComponentAddress("Targetable");
 
 	if (ComponentAddr == NULL)
 		return false;
 
-	BYTE Targetable = DereferenceSafe<BYTE>(ComponentAddr + 0x50);
+	BYTE Targetable = DereferenceSafe<BYTE>(ComponentAddr + Offsets::Targetable::IsMouseHovered);
 	return Targetable;
 }
 
@@ -328,99 +320,5 @@ bool Entity::IsAlive()
 {
 	UINT HP = Life::GetEntityHP(this);
 	return (HP > 0) ? true : false;
-}
-
-
-
-
-void Entity::PrintNotableEntities(Entity* e)
-{
-	std::wstring w = e->GetFilePathFromMemory();
-	Vector2 GridLocation = e->GetVector2();
-
-	if (wcsstr(w.c_str(), L"Unique") != NULL) //make this more portable
-	{
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (FOREGROUND_INTENSITY | FOREGROUND_RED));
-		wprintf(L"**UNIQUE CHEST DETECTED**: (%d, %d) Path: %s\n", GridLocation.X, GridLocation.Y, w.c_str());
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (0 | 15)); // 0 or 15 = 15 (0 / 11111)
-	}
-	else if (wcsstr(w.c_str(), L"FossilChest") != NULL)
-	{
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (FOREGROUND_INTENSITY | FOREGROUND_RED));
-		wprintf(L"**FOSSIL CHEST DETECTED**: (%d, %d) Path: %s\n", GridLocation.X, GridLocation.Y, w.c_str());
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (0 | 15));
-	}
-	else if (wcsstr(w.c_str(), L"Resonator3") != NULL)
-	{
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (FOREGROUND_INTENSITY | FOREGROUND_RED));
-		wprintf(L"**RESONATOR CACHE DETECTED**: (%d, %d)  Path: %s\n", GridLocation.X, GridLocation.Y, w.c_str());
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (0 | 15));
-	}
-	else if (wcsstr(w.c_str(), L"Resonator4") != NULL)
-	{
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (FOREGROUND_INTENSITY | FOREGROUND_RED));
-		wprintf(L"**RESONATOR HOARDE!!! DETECTED**: (%d, %d)  Path: %s\n", GridLocation.X, GridLocation.Y, w.c_str());
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (0 | 15));
-	}
-	else if (wcsstr(w.c_str(), L"Divination") != NULL)
-	{
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (FOREGROUND_INTENSITY | FOREGROUND_RED));
-		wprintf(L"**DIVINATION CHEST DETECTED**: (%d, %d)  Path: %s\n", GridLocation.X, GridLocation.Y, w.c_str());
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (0 | 15));
-	}
-	else if (wcsstr(w.c_str(), L"Divination") != NULL)
-	{
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (FOREGROUND_BLUE));
-		wprintf(L"**DIVINATION CHEST DETECTED**: (%d, %d)  Path: %s\n", GridLocation.X, GridLocation.Y, w.c_str());
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (0 | 15));
-	}
-	else if (wcsstr(w.c_str(), L"OffPathCurrency") != NULL)
-	{
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (FOREGROUND_GREEN));
-		wprintf(L"**OFFPATH CURRENCY CHEST DETECTED**: (%d, %d)  Path: %s\n", GridLocation.X, GridLocation.Y, w.c_str());
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (0 | 15));
-	}
-	else if (wcsstr(w.c_str(), L"DynamiteCurrency") != NULL)
-	{
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (FOREGROUND_GREEN));
-		wprintf(L"**DYNAMITE CURRENCY2 CHEST DETECTED**: (%d, %d)  Path: %s\n", GridLocation.X, GridLocation.Y, w.c_str());
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (0 | 15));
-	}
-	else if (wcsstr(w.c_str(), L"DynamiteCurrency2") != NULL)
-	{
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (FOREGROUND_GREEN));
-		wprintf(L"**DYNAMITE CURRENCY CHEST DETECTED**: (%d, %d)  Path: %s\n", GridLocation.X, GridLocation.Y, w.c_str());
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (0 | 15));
-	}
-	else if (wcsstr(w.c_str(), L"EternalChest") != NULL)
-	{
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (FOREGROUND_GREEN));
-		wprintf(L"**DYNAMITE CURRENCY CHEST DETECTED**: (%d, %d)  Path: %s\n", GridLocation.X, GridLocation.Y, w.c_str());
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (0 | 15));
-	}
-	else if (wcsstr(w.c_str(), L"LegionChests/KaruiChest") != NULL)
-	{
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (FOREGROUND_RED));
-		wprintf(L"**KARUI LEGION CHEST DETECTED**: (%d, %d)  Path: %s\n", GridLocation.X, GridLocation.Y, w.c_str());
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (0 | 15));
-	}
-	else if (wcsstr(w.c_str(), L"LegionChests/EternalEmpireChest") != NULL)
-	{
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (FOREGROUND_GREEN));
-		wprintf(L"**ETERNAL LEGION CHEST DETECTED**: (%d, %d)  Path: %s\n", GridLocation.X, GridLocation.Y, w.c_str());
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (0 | 15));
-	}
-	else if (wcsstr(w.c_str(), L"LegionChests/VaalChest") != NULL)
-	{
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (FOREGROUND_GREEN));
-		wprintf(L"**VAAL LEGION CHEST DETECTED**: (%d, %d)  Path: %s\n", GridLocation.X, GridLocation.Y, w.c_str());
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (0 | 15));
-	}
-	else if (wcsstr(w.c_str(), L"LegionChests/TemplarChest") != NULL)
-	{
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (FOREGROUND_GREEN));
-		wprintf(L"**TEMPLAR LEGION CHEST DETECTED**: (%d, %d)  Path: %s\n", GridLocation.X, GridLocation.Y, w.c_str());
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (0 | 15));
-	}
 }
 
