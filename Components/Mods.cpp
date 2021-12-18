@@ -2,17 +2,41 @@
 
 bool Mods::IsIdentified(Entity* e)
 {
-	return false;
+	UINT64 CompAddr = e->GetComponentAddress("Mods");
+	bool isIded = false;
+
+	if (CompAddr > NULL)
+	{
+		isIded = DereferenceSafe<bool>(CompAddr + Mods::isIdentifiedOffset);
+	}
+
+	return isIded;
 }
 
 bool Mods::IsMirrored(Entity* e)
 {
-	return false;
+	UINT64 CompAddr = e->GetComponentAddress("Mods");
+	bool mirrored = false;
+
+	if (CompAddr > NULL)
+	{
+		mirrored = DereferenceSafe<bool>(CompAddr + Mods::isMirroredOffset);
+	}
+
+	return mirrored;
 }
 
 bool Mods::IsSynthesized(Entity* e)
 {
-	return false;
+	UINT64 CompAddr = e->GetComponentAddress("Mods");
+	bool synthesized = false;
+
+	if (CompAddr > NULL)
+	{
+		synthesized = DereferenceSafe<bool>(CompAddr + Mods::isSynthesizedOffset);
+	}
+
+	return synthesized;
 }
 
 Mods::Rarities Mods::GetItemRarity(Entity* e)
@@ -57,10 +81,11 @@ int Mods::GetRequiredLevel(Entity* e)
 	return requiredLevel;
 }
 
-wchar_t* Mods::GetUniqueName(Entity* e)
+std::wstring Mods::GetUniqueName(Entity* e)
 {
 	UINT64 CompAddr = e->GetComponentAddress("Mods");
-	wchar_t NamePtr[100] = { 0 };
+
+	std::wstring fullName;
 
 	if (CompAddr != NULL)
 	{
@@ -68,41 +93,39 @@ wchar_t* Mods::GetUniqueName(Entity* e)
 
 		if (CompAddr != NULL)
 		{
-			int Count = 0;
 			UINT64 PtrListArray = DereferenceSafe<UINT64>(CompAddr);
-			UINT64 PtrEndArray = DereferenceSafe<UINT64>(CompAddr + 8);
+			UINT64 PtrEndArray = DereferenceSafe<UINT64>(CompAddr + 8);		
+			UINT64 Current = PtrListArray;
+			int count = 0;
 
-			UINT64 FirstNameRecord = DereferenceSafe<UINT64>(PtrListArray);
-			UINT64 Current = FirstNameRecord;
-
-			printf("PtrListArray: %llX\n", PtrListArray);
-			printf("PtrEndArray: %llX\n", PtrEndArray);
-			printf("Current: %llX\n", Current);
-
-			while (Current < PtrEndArray)
+			while (Current <= PtrEndArray)
 			{
-				int NameRecordCounter = DereferenceSafe<int>(Current);
-				UINT64 NameAddr = DereferenceSafe<UINT64>(Current + 4);
-				
-				printf("Count: %d, NameAddr %llX\n", NameRecordCounter, NameAddr);
+				UINT64 NameRecord = DereferenceSafe<UINT64>(PtrListArray + (count * 0x10));
+				UINT32 NameRecordCounter = DereferenceSafe<UINT32>(NameRecord);
 
-				if (NameAddr != NULL)
+				if (NameRecordCounter >= 1 && NameRecordCounter <= 10)
 				{
-					if (Count == 1)
+					UINT64 NameAddr = DereferenceSafe<UINT64>(NameRecord + 4);
+
+					if (NameAddr != NULL)
 					{
-						wcscpy(NamePtr, (const wchar_t*) NameAddr);
-					}
-					else
-					{
-						wcscat(NamePtr, (const wchar_t*)NameAddr);
+						if (NameRecordCounter == 1)
+						{
+							fullName = std::wstring((const wchar_t*)NameAddr);
+						}
+						else
+						{
+							fullName = fullName + (const wchar_t*)NameAddr;
+						}
 					}
 				}
 
 				Current += 0x10;
+				count += 1;
 			}
 		}
 
 	}
 
-	return NamePtr;
+	return fullName;
 }
