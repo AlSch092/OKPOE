@@ -25,7 +25,6 @@ Inventory::Item* NormalInventory::GetInventoryItem(UINT64 ElementAddr)
 			item->isHovered = DereferenceSafe<byte>(IsHovered);
 
 			item->ItemEnt = new Entity(EntityAddr);
-			item->ItemEnt->FillComponentList(); //might not be needed.. perhaps for advanced infos
 		}
 	}
 
@@ -54,13 +53,12 @@ std::list<Inventory::Item*> NormalInventory::GetInventoryItems()
 
 				INT nElements = (ChildElementEnd - ChildElementList) / sizeof(UINT64);
 
-				printf("nElements: %d, Inventory base: %llX, childList: %llX, end: %llX \n", nElements, nextAddr, ChildElementList, ChildElementEnd);	
+				if (Robot->DebugMode)
+					printf("nElements: %d, Inventory base: %llX, childList: %llX, end: %llX \n", nElements, nextAddr, ChildElementList, ChildElementEnd);	
 
 				for (int i = 1; i < nElements; i++) //first one has no entity
 				{
 					UINT64 ChildElement = DereferenceSafe<UINT64>(ChildElementList + (i * sizeof(UINT64)));
-
-					printf("ChildElement at %llX..\n", ChildElement);
 
 					if (ChildElement != NULL) //
 					{
@@ -84,28 +82,45 @@ std::list<Inventory::Item*> NormalInventory::GetInventoryItems()
 								im->StashPage = 0;
 								im->MemoryAddress = ChildElement;
 								im->ItemEnt = new Entity(EntityAddr);
-								im->ItemEnt->FillComponentList();
 								im->ElementId = DereferenceSafe<UINT32>(ChildElement + Element::ElementIdOffset);
+
+								if (im->ItemEnt->GetComponentAddress("Base") != NULL)
+								{
+									wstring name = Base::GetBaseName(im->ItemEnt);
+
+									if (name.size() > 0)
+									{
+										im->BaseName = wstring(name);
+										wprintf(L"Base name: %s\n", name.c_str());
+									}
+								}
 
 								if (im->ItemEnt->GetComponentAddress("Stack") > NULL)
 								{
-									int size = Stack::GetStackSize(im->ItemEnt);
-									printf("Stack size: %d\n", size);
+									im->stackSize = Stack::GetStackSize(im->ItemEnt);
+									printf("Stack size: %d\n", im->stackSize);
 								}
+
+								if (im->ItemEnt->GetComponentAddress("Mods") > 0)
+								{
+									std::wstring namePtr = Mods::GetUniqueName(im->ItemEnt);
+									wprintf(L"Item Unique Name: %s\n", namePtr.c_str());
+									im->UniqueName = std::wstring(namePtr);
+								}
+								
+								if (im->UniqueName.size() > 0 && im->BaseName.size() > 0)
+								{
+									im->FullName = wstring(im->UniqueName + L" " + im->BaseName);
+									wprintf(L"Full name: %s\n", im->FullName.c_str());
+								}
+
 
 								itms.push_back(im);
 
-								printf("\tCell %d,%d: Child Element at: %llX (Entity %llX)\n", inventoryX, inventoryY, ChildElement, EntityAddr);
+								if (Robot->DebugMode)
+									printf("\tCell %d,%d: Child Element at: %llX (Entity %llX)\n", inventoryX, inventoryY, ChildElement, EntityAddr);
 							}
 						}
-						else
-						{
-							printf("\tChild Element at: %llX \n", ChildElement);
-						}
-					}
-					else
-					{
-						printf("ChildElement was NULL.\n", ChildElement);
 					}
 				}
 			}
@@ -119,7 +134,7 @@ std::list<Inventory::Item*> NormalInventory::GetInventoryItems()
 std::list<Inventory::Item*> CurrencyInventory::GetInventoryItems()
 {
 	UINT64 poeBase = (UINT64)GetModuleHandleA(NULL);
-	UINT64 Ptr = DereferenceSafe<UINT64>(poeBase + Offsets::CurrencyInventory);
+	UINT64 Ptr = DereferenceSafe<UINT64>(poeBase + prot->Offsets[13]);
 	std::list<Inventory::Item*> itms;
 
 	if (Ptr != NULL)
@@ -141,15 +156,14 @@ std::list<Inventory::Item*> CurrencyInventory::GetInventoryItems()
 
 				INT nElements = (ChildElementEnd - ChildElementList) / sizeof(UINT64);
 
-				printf("nElements: %d, Inventory base: %llX, childList: %llX, end: %llX \n", nElements, nextAddr, ChildElementList, ChildElementEnd);
+				if (Robot->DebugMode)
+					printf("nElements: %d, Inventory base: %llX, childList: %llX, end: %llX \n", nElements, nextAddr, ChildElementList, ChildElementEnd);
 
 				if (nElements > 1)
 				{
 					for (int i = 0; i < nElements; i++)
 					{
 						UINT64 ChildElement = DereferenceSafe<UINT64>(ChildElementList + (i * sizeof(UINT64)));
-
-						printf("ChildElement at %llX..\n", ChildElement);
 
 						if (ChildElement != NULL) //
 						{
@@ -160,7 +174,7 @@ std::list<Inventory::Item*> CurrencyInventory::GetInventoryItems()
 
 							if (subElements > 0 && subElements <= 2)
 							{
-								UINT64 ChildChildElement = DereferenceSafe<UINT64>(subChildElementList + (1 * sizeof(UINT64)));
+								UINT64 ChildChildElement = DereferenceSafe<UINT64>(subChildElementList + sizeof(UINT64));
 
 								if (ChildChildElement != NULL)
 								{
@@ -184,31 +198,48 @@ std::list<Inventory::Item*> CurrencyInventory::GetInventoryItems()
 											im->StashPage = 0;
 											im->MemoryAddress = ChildChildElement;
 											im->ItemEnt = new Entity(EntityAddr);
-											im->ItemEnt->FillComponentList();
+										
 											im->ElementId = DereferenceSafe<UINT32>(ChildChildElement + Element::ElementIdOffset);
+
+											if (im->ItemEnt->GetComponentAddress("Base") != NULL)
+											{
+												wstring name = Base::GetBaseName(im->ItemEnt);
+
+												if (name.size() > 0)
+												{
+													im->BaseName = wstring(name);
+													wprintf(L"Base name: %s\n", name.c_str());
+												}
+											}
 
 											if (im->ItemEnt->GetComponentAddress("Stack") > NULL)
 											{
-												int size = Stack::GetStackSize(im->ItemEnt);
-												printf("Stack size: %d\n", size);
+												im->stackSize = Stack::GetStackSize(im->ItemEnt);
+												printf("Stack size: %d\n", im->stackSize);
 											}
+
+											if (im->ItemEnt->GetComponentAddress("Mods") > 0)
+											{
+												std::wstring namePtr = Mods::GetUniqueName(im->ItemEnt);
+												wprintf(L"Item Unique Name: %s\n", namePtr.c_str());
+												im->UniqueName = std::wstring(namePtr);
+											}
+
+											if (im->UniqueName.size() > 0 && im->BaseName.size() > 0)
+											{
+												im->FullName = wstring(im->UniqueName + L" " + im->BaseName);
+												wprintf(L"Full name: %s\n", im->FullName.c_str());
+											}
+
 
 											itms.push_back(im);
 
-											printf("\tCell %d,%d: Child Element at: %llX (Entity %llX)\n", inventoryX, inventoryY, ChildChildElement, EntityAddr);
+											if (Robot->DebugMode)
+												printf("\tCell %d,%d: Child Element at: %llX (Entity %llX)\n", inventoryX, inventoryY, ChildChildElement, EntityAddr);
 										}
-									}
-									else
-									{
-										printf("\tChild Element at: %llX \n", ChildChildElement);
 									}
 								}
 							}
-
-						}
-						else
-						{
-							printf("ChildElement was NULL.\n", ChildElement);
 						}
 					}				
 				}
@@ -222,7 +253,7 @@ std::list<Inventory::Item*> CurrencyInventory::GetInventoryItems()
 std::list<Inventory::Item*> StashInventory::GetInventoryItemsAtTab(int index)
 {
 	UINT64 poeBase = (UINT64)GetModuleHandleA(NULL);
-	UINT64 ElementRoot = DereferenceSafe<UINT64>(poeBase + Offsets::StashInventory);
+	UINT64 ElementRoot = DereferenceSafe<UINT64>(poeBase + prot->Offsets[13]);
 	
 	std::list<Inventory::Item*> itms;
 
@@ -237,7 +268,8 @@ std::list<Inventory::Item*> StashInventory::GetInventoryItemsAtTab(int index)
 
 			INT nElements = (ChildElementEnd - ChildElementList) / sizeof(UINT64);
 
-			printf("nElements: %d, Inventory base: %llX, childList: %llX, end: %llX \n", nElements, ChildElement, ChildElementList, ChildElementEnd);
+			if (Robot->DebugMode)
+				printf("nElements: %d, Inventory base: %llX, childList: %llX, end: %llX \n", nElements, ChildElement, ChildElementList, ChildElementEnd);
 
 			for (int i = 1; i < nElements; i++) //first one has no entity, atleast for normalinv
 			{
@@ -263,30 +295,47 @@ std::list<Inventory::Item*> StashInventory::GetInventoryItemsAtTab(int index)
 							im->Height = sizeY;
 							im->Width = sizeX;
 							im->ItemEnt = new Entity(EntityAddr);
-							im->ItemEnt->FillComponentList();
+					
 							im->StashPage = index;
 							im->MemoryAddress = Child;
 							im->ElementId = DereferenceSafe<UINT32>(Child + Element::ElementIdOffset);
 
+							if (im->ItemEnt->GetComponentAddress("Base") != NULL)
+							{
+								wstring name = Base::GetBaseName(im->ItemEnt);
+
+								if (name.size() > 0)
+								{
+									im->BaseName = wstring(name);
+									wprintf(L"Base name: %s\n", name.c_str());
+								}
+							}
+
 							if (im->ItemEnt->GetComponentAddress("Stack") != NULL)
 							{
-								int size = Stack::GetStackSize(im->ItemEnt);
-								printf("Stack size: %d\n", size);
+								im->stackSize = Stack::GetStackSize(im->ItemEnt);
+								printf("Stack size: %d\n", im->stackSize);
+							}
+
+							if (im->ItemEnt->GetComponentAddress("Mods") > 0)
+							{
+								std::wstring namePtr = Mods::GetUniqueName(im->ItemEnt);
+								wprintf(L"Item Unique Name: %s\n", namePtr.c_str());
+								im->UniqueName = std::wstring(namePtr);
+							}
+
+							if (im->UniqueName.size() > 0 && im->BaseName.size() > 0)
+							{
+								im->FullName = wstring(im->UniqueName + L" " + im->BaseName);
+								wprintf(L"Full name: %s\n", im->FullName.c_str());
 							}
 
 							itms.push_back(im);
 
-							printf("\t Cell %d,%d: Child Element at: %llX (Entity %llX)\n", inventoryX, inventoryY, Child, EntityAddr);
+							if (Robot->DebugMode)
+								printf("\t Cell %d,%d: Child Element at: %llX (Entity %llX)\n", inventoryX, inventoryY, Child, EntityAddr);
 						}
 					}
-					else
-					{
-						printf("\t Child Element at: %llX \n", Child);
-					}
-				}
-				else
-				{
-					printf("ChildElement was NULL.\n", ChildElement);
 				}
 			}
 		}
@@ -296,23 +345,10 @@ std::list<Inventory::Item*> StashInventory::GetInventoryItemsAtTab(int index)
 
 }
 
-void StashInventory::ForceLoadTab(int index)
-{
-	PacketWriter* p = PacketBuilder::ChangeCurrentStashTab(index);
-	UINT64 SendClass = GetSendClass();
-
-	if (SendClass != NULL)
-	{
-		SendPacket(SendClass, (LPBYTE)p->GetBuffer(), p->GetSize());
-	}
-
-	delete p;
-}
-
 std::list<Inventory::Item*> TradeInventory::GetTradeWindowItems(int inventorySide)
 {
 	UINT64 poeBase = (UINT64)GetModuleHandleA(NULL);
-	UINT64 ElementRoot = DereferenceSafe<UINT64>(poeBase + Offsets::TradeWindow)
+	UINT64 ElementRoot = DereferenceSafe<UINT64>(poeBase + prot->Offsets[13]);
 	UINT64 ChildElement = 0;
 
 	std::list<Inventory::Item*> itms;
@@ -323,7 +359,7 @@ std::list<Inventory::Item*> TradeInventory::GetTradeWindowItems(int inventorySid
 		{
 			ChildElement = DereferenceSafe<UINT64>(ElementRoot + Inventory::TradeWindowOffset_OurItems);
 		}
-		else if (inventorySide == Inventory::Other)
+		else if (inventorySide == Inventory::Remote)
 		{
 			ChildElement = DereferenceSafe<UINT64>(ElementRoot + Inventory::TradeWindowOffset_TheirItems);
 		}
@@ -335,13 +371,14 @@ std::list<Inventory::Item*> TradeInventory::GetTradeWindowItems(int inventorySid
 
 			INT nElements = (ChildElementEnd - ChildElementList) / sizeof(UINT64);
 
-			printf("nElements: %d, Inventory base: %llX, childList: %llX, end: %llX \n", nElements, ChildElement, ChildElementList, ChildElementEnd);
+			if (Robot->DebugMode)
+				printf("nElements: %d, Inventory base: %llX, childList: %llX, end: %llX \n", nElements, ChildElement, ChildElementList, ChildElementEnd);
 
 			for (int i = 0; i < nElements; i++) // 1 item in trade window -> 3 child members, last one contains the entity?
 			{
 				UINT64 Child = DereferenceSafe<UINT64>(ChildElementList + (i * sizeof(UINT64)));
 
-				if (Child != NULL) //
+				if (Child != NULL)
 				{
 					UINT64 EntityAddr = DereferenceSafe<UINT64>(Child + Element::EntityOffset);
 
@@ -361,40 +398,83 @@ std::list<Inventory::Item*> TradeInventory::GetTradeWindowItems(int inventorySid
 							im->Height = sizeY;
 							im->Width = sizeX;
 							im->ItemEnt = new Entity(EntityAddr);
-							im->ItemEnt->FillComponentList();
 							im->StashPage = NULL;
 							im->MemoryAddress = Child;
 							im->ElementId = DereferenceSafe<UINT32>(Child + Element::ElementIdOffset);
 
+							if (im->ItemEnt->GetComponentAddress("Base") != NULL)
+							{
+								wstring name = Base::GetBaseName(im->ItemEnt);
+
+								if (name.size() > 0)
+								{
+									im->BaseName = wstring(name);
+									wprintf(L"Base name: %s\n", name.c_str());
+								}
+							}
+
+							if (im->ItemEnt->GetComponentAddress("Mods") > 0)
+							{
+								std::wstring namePtr = Mods::GetUniqueName(im->ItemEnt);
+								wprintf(L"Item Unique Name: %s\n", namePtr.c_str());
+								im->UniqueName = std::wstring(namePtr);
+							}
+
+
 							if (im->ItemEnt->GetComponentAddress("Stack") != NULL)
 							{
-								int size = Stack::GetStackSize(im->ItemEnt);
-								printf("Stack size: %d\n", size);
+								im->stackSize = Stack::GetStackSize(im->ItemEnt);
+								printf("Stack size: %d\n", im->stackSize);
+							}
+
+							if (im->UniqueName.size() > 0 && im->BaseName.size() > 0)
+							{
+								im->FullName = wstring(im->UniqueName + L" " + im->BaseName);
+								wprintf(L"Full name: %s\n", im->FullName.c_str());
 							}
 
 							itms.push_back(im);
 
-							printf("\t Cell %d,%d: Child Element at: %llX (Entity %llX)\n", inventoryX, inventoryY, Child, EntityAddr);
+							if (Robot->DebugMode)
+								printf("\t Cell %d,%d: Child Element at: %llX (Entity %llX)\n", inventoryX, inventoryY, Child, EntityAddr);
 						}
 					}
-					else
-					{
-						printf("\t Child Element at: %llX \n", Child);
-					}
-				}
-				else
-				{
-					printf("ChildElement was NULL.\n", ChildElement);
 				}
 			}
-		}
-		else
-		{
-			printf("ChildElement was NULL.\n");
 		}
 	}
 
 	return itms;
 
+}
 
+bool TradeInventory::ContainsItem(Inventory::TradeWindowSide side, wstring itemName, int quantity)
+{
+	std::list<Inventory::Item*> items = GetTradeWindowItems(side); //mabe replace this with @tab 5/6
+
+	if (items.size() > 0)
+	{
+		for each (Inventory::Item* i in items)
+		{
+			if (wcscmp(i->ItemEnt->GetFilePathFromMemory().c_str(), itemName.c_str()) == 0)
+			{
+				wprintf(L"Found item in trade window: %s\n", itemName.c_str());
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+
+void StashInventory::ForceLoadTab(int index)
+{
+	PacketWriter* p = PacketBuilder::ChangeCurrentStashTab(index);
+	UINT64 SendClass = GetSendClass();
+
+	if (SendClass != NULL)
+		SendPacket(SendClass, (LPBYTE)p->GetBuffer(), p->GetSize());
+
+	delete p;
 }
