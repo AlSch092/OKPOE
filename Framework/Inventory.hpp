@@ -78,9 +78,7 @@ namespace Inventory //inherited class from elemnt
 		
 		int Height;
 		int Width;
-		
-		bool isHovered;
-		
+				
 		int StashPage;
 		
 		UINT64 MemoryAddress;
