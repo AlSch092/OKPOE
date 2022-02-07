@@ -10,11 +10,10 @@ namespace Chest
 	static const UINT64 IsOpenOnDamageTakenOffset = StrongboxInfoOffset + 0x25; //StrongboxData + 0x25 == 1
 	static const UINT64 IsOpenWhenMonstersDieOffset = StrongboxInfoOffset + 0x28; //strongboxInfo + 0x28 == 1
 
-	static const UINT64 IsOpenedOffset = 0x58; // 0x58 == 1
-	static const UINT64 IsLockedOffset = 0x59; //0x59 > 1
-	static const UINT64 IsStrongboxOffset = 0x98; //0x98 > 0
-	static const UINT64 QualityOffset = 0x5C; //0x5C
-
+	static const UINT64 IsOpenedOffset = 0x178;
+	static const UINT64 IsLockedOffset = 0x179;
+	static const UINT64 IsStrongboxOffset = 0x1B8; //check
+	static const UINT64 QualityOffset = 0x5C;
 
 	bool IsOpened(Entity* e);
 	bool IsLocked(Entity* e);
