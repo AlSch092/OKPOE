@@ -185,3 +185,120 @@ public:
 
 	virtual ~TradeInventory() {};
 };
+
+std::list<Item*> Inventory::GetFlasks(bool inventoryLoaded)
+{
+	std::list<Item*> flasks;
+
+	UINT64 poeBase = (UINT64)GetModuleHandleA(NULL);
+	UINT64 Ptr = DereferenceSafe<UINT64>(poeBase + prot->Offsets[8]);
+
+	if (Ptr != NULL)
+	{
+		UINT64 CurrentAddress;
+		
+		if (!inventoryLoaded)
+		{
+			CurrentAddress = DereferenceSafe<UINT64>(Ptr + 0x100); //different offset based on whether the inventory is loaded CS or not.. yay
+		}
+		else
+		{
+			CurrentAddress = DereferenceSafe<UINT64>(Ptr + 0x170); 
+		}
+		
+		if (CurrentAddress != NULL)
+		{
+			//we are now at the base inventory element.
+			UINT64 ChildElementList = DereferenceSafe<UINT64>(CurrentAddress + Element::ChildsOffset);
+			UINT64 ChildElementEnd = DereferenceSafe<UINT64>(CurrentAddress + Element::ChildEndOffset);
+
+			INT nElements = (ChildElementEnd - ChildElementList) / sizeof(UINT64);
+
+			if (Robot->DebugMode)
+				printf("nElements: %d, Inventory base: %llX, childList: %llX, end: %llX \n", nElements, CurrentAddress, ChildElementList, ChildElementEnd);
+
+			for (int i = 1; i < nElements; i++) //first one has no entity
+			{
+				UINT64 ChildElement = DereferenceSafe<UINT64>(ChildElementList + (i * sizeof(UINT64)));
+
+				if (Robot->DebugMode)
+					printf("ChildElement at: %llX\n", ChildElement);
+
+				if (ChildElement != NULL) //
+				{
+					UINT64 EntityAddr = DereferenceSafe<UINT64>(ChildElement + Inventory::EntityOffset);
+
+					if (EntityAddr != NULL && (EntityAddr > 0x010000000000 && EntityAddr < 0x050000000000))
+					{
+						int inventoryX = DereferenceSafe<int>(ChildElement + Inventory::CellXOffset);
+						int inventoryY = DereferenceSafe<int>(ChildElement + Inventory::CellYOffset);
+
+						int sizeX = DereferenceSafe<int>(ChildElement + Inventory::CellWidthOffset);
+						int sizeY = DereferenceSafe<int>(ChildElement + Inventory::CellHeightOffset);
+
+						if (sizeX > 0 && sizeY > 0)
+						{
+							Item* im = new Item();
+							im->CellX = inventoryX;
+							im->CellY = inventoryY;
+							im->Height = sizeY;
+							im->Width = sizeX;
+							im->StashPage = 0;
+							im->MemoryAddress = ChildElement;
+							im->ItemEnt = new Entity(EntityAddr);
+							im->ElementId = DereferenceSafe<UINT32>(ChildElement + Inventory::EntityIdOffset);
+
+							if (im->ItemEnt->GetComponentAddress("Base") != NULL)
+							{
+								wstring name = Base::GetBaseName(im->ItemEnt);
+
+								if (name.size() > 0)
+								{
+									im->BaseName = wstring(name);
+									wprintf(L"Base name: %s\n", name.c_str());
+								}
+							}
+
+							if (im->ItemEnt->GetComponentAddress("Stack") > NULL)
+							{
+								im->stackSize = Stack::GetStackSize(im->ItemEnt);
+								printf("Stack size: %d\n", im->stackSize);
+							}
+							else
+							{
+								im->stackSize = 1;
+								printf("Stack size: %d\n", im->stackSize);
+							}
+
+							if (im->ItemEnt->GetComponentAddress("Mods") > 0)
+							{
+								std::wstring namePtr = Mods::GetUniqueName(im->ItemEnt);
+								wprintf(L"Item Unique Name: %s\n", namePtr.c_str());
+								im->UniqueName = std::wstring(namePtr);
+							}
+
+							if (im->UniqueName.size() > 0 && im->BaseName.size() > 0)
+							{
+								im->FullName = wstring(im->UniqueName + L" " + im->BaseName);
+								wprintf(L"Full name: %s\n", im->FullName.c_str());
+							}
+							else if (im->UniqueName.size() == 0 && im->BaseName.size() > 0)
+							{
+								im->FullName = wstring(im->BaseName);
+							}
+
+
+							flasks.push_back(im);
+
+							if (Robot->DebugMode)
+								printf("\tCell %d,%d: Child Element at: %llX (Entity %llX)\n", inventoryX, inventoryY, ChildElement, EntityAddr);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return flasks;
+
+}
