@@ -2,26 +2,50 @@
 #include "Element.hpp"
 #include "AutoPlayer.hpp"
 
+struct Item
+{
+	Entity* ItemEnt;
+
+	int CellX;
+	int CellY;
+
+	int Height;
+	int Width;
+
+	int StashPage;
+
+	UINT64 MemoryAddress;
+	UINT32 ElementId;
+
+	int stackSize;
+
+	wstring UniqueName;
+	wstring BaseName;
+	wstring FullName; //Unique name + Base Name
+	wstring PriceTag;
+
+};
+
 namespace Inventory //inherited class from elemnt
 {
-	static const UINT64 PickupIndex = 0x420;
-	static const UINT64 EntityOffset = 0x428;
-	static const UINT64 CellXOffset = 0x430;
+	static const UINT64 EntityIdOffset = 0x438;
+	static const UINT64 EntityOffset = 0x440;
+	static const UINT64 CellXOffset = 0x448;
 	static const UINT64 CellYOffset = CellXOffset + 4;
-	static const UINT64 CellWidthOffset = 0x438;
+	static const UINT64 CellWidthOffset = CellYOffset + 4;
 	static const UINT64 CellHeightOffset = CellWidthOffset + 4;
-	static const UINT64 IsHoveredOffset = 0x496;
-	static const UINT64 AffinityFlagsOffset = 0x4D0; //only for inventories.. not trade windows?
+	static const UINT64 IsHoveredOffset = 0x4AE;
+	static const UINT64 AffinityFlagsOffset = 0x4D0; //needs updating
 
 	static const UINT64 TradeWindowOffset_OurItems = 0x458;//1st offset
 	static const UINT64 TradeWindowOffset_TheirItems = 0x460;
 
-	static const UINT64 TradeWindowOffset_OurItems2 = 0x6B8; //1st offset ... does this mean the new windows popping up become the first tabs of stash??
-	static const UINT64 TradeWindowOffset_TheirItems2 = 0x6C0;
+	static const UINT64 TradeWindowOffset_OurItems2 = 0x6B8; //
+	static const UINT64 TradeWindowOffset_TheirItems2 = 0x6C0; //needs updating
 
 	//this ptr will have most if not all important windows, gg
 	static const UINT64 CurrencyTabOffset = 0x4D0; //redo this for hopefully a smaller solution
-	static const UINT64 StashTab1Offset = 0x6B8; //+8 for each tab..
+	static const UINT64 StashTab1Offset = 0x658; //+8 for each tab..
 	static const UINT64 StashTab2Offset = StashTab1Offset + 8;
 	static const UINT64 StashTab3Offset = StashTab2Offset + 8;
 	static const UINT64 StashTab4Offset = StashTab3Offset + 8;
@@ -35,7 +59,7 @@ namespace Inventory //inherited class from elemnt
 		Local
 	};
 
-	enum InventoryTabPermissions : byte
+	enum InventoryTabPermissions : byte //these 3 enums are copy pasta... no guarantee they're correct until I check manually
 	{
 		None = 0,
 		View = 1,
@@ -69,68 +93,44 @@ namespace Inventory //inherited class from elemnt
 		Delirium = 0x4000
 	};
 
-	struct Item
-	{
-		Entity* ItemEnt;
-		
-		int CellX;
-		int CellY;
-		
-		int Height;
-		int Width;
-				
-		int StashPage;
-		
-		UINT64 MemoryAddress;
-		UINT32 ElementId;
-		
-		int stackSize;
-		
-		wstring UniqueName;
-		wstring BaseName;
-		wstring FullName; //Unique name + Base Name
-		wstring PriceTag;
-
-	};
-	
 }
 
-class InventoryBase : ElementBase
+class InventoryBase : public ElementBase
 {
 public:
 
 	InventoryBase() {};
 	InventoryBase(UINT64 ElementAddr) : ElementAddress(ElementAddr) { }
 
-	//virtual std::list<Inventory::Item*> GetInventoryItems();
-
-	std::list<Inventory::Item*> Items;
+	std::list<Item*> Items;
 	UINT64 ElementAddress;
 
-	virtual bool DoesItemFitInSlots(Inventory::Item* itm, int CellX, int CellY) { return false; };
 };
 
-class NormalInventory : public InventoryBase
+class NormalInventory : virtual public InventoryBase
 {
 public:
 
 	NormalInventory() {};
 	
-	std::list<Inventory::Item*> GetInventoryItems();
-	Inventory::Item* GetInventoryItem(UINT64 StructAddr);
+	std::list<Item*> GetInventoryItems();
+	Item* GetInventoryItem(UINT64 StructAddr);
 
-	virtual bool DoesItemFitInSlots(Inventory::Item* itm, int CellX, int CellY) { return false; }
+	std::list<Item*> GetFlasks(bool isCached);
 
-	virtual ~NormalInventory() {};
+	virtual bool DoesItemFitInSlots(Item* itm, int CellX, int CellY) { return false; }
 
-	friend NormalInventory operator+= (NormalInventory lhs, Inventory::Item* rhs) //confusing
+	friend NormalInventory operator+= (NormalInventory lhs, Item* rhs) 
  	{
 		lhs.Items.push_back(rhs);
 	}
 
+	int OccupiedCells[12][5]; //12 by 5 ingame
+
+	virtual ~NormalInventory() {};
 };
 
-class StashInventory : public NormalInventory
+class StashInventory : virtual public NormalInventory
 {
 public:
 	void SetTabPermissions(byte p);
@@ -139,7 +139,7 @@ public:
 
 	UINT16 GetAffinityFlags(UINT64 ElementAddr) { UINT16 af = DereferenceSafe<UINT16>(ElementAddr + Inventory::AffinityFlagsOffset); return af; }
 
-	std::list<Inventory::Item*> GetInventoryItemsAtTab(int index);
+	std::list<Item*> GetInventoryItemsAtTab(int index);
 	void ForceLoadTab(int index);
 
 	int StashTabPage;
@@ -149,21 +149,21 @@ public:
 	Inventory::InventoryTabFlags Flags;
 	Inventory::InventoryTabAffinityFlags AffinityFlags;
 
-	virtual bool DoesItemFitInSlots(Inventory::Item* itm, int CellX, int CellY) { return false; }
+	virtual bool DoesItemFitInSlots(Item* itm, int CellX, int CellY) { return false; }
+
+	int OccupiedCells[12][12]; //12 by 12 ingame. we can put item index or whatever as the int to make a quick/dirty array hashmap
 
 	virtual ~StashInventory() {};
 };
 
-class CurrencyInventory : public StashInventory
+class CurrencyInventory : virtual public InventoryBase //Multi-level inheritance example
 {
 public:
-	std::list<Inventory::Item*> GetInventoryItems();
+	std::list<Item*> GetInventoryItems();
 
-	int ChaosOrbs, ExaltedOrbs, VaalOrbs, FusingOrbs, ChromaticOrbs = { 0 };
+	virtual bool DoesItemFitInSlots(Item* itm, int CellX, int CellY) { return false; }
 
-	virtual bool DoesItemFitInSlots(Inventory::Item* itm, int CellX, int CellY) { return false; }
-
-	friend CurrencyInventory operator+= (CurrencyInventory lhs, Inventory::Item* rhs) //confusing
+	friend CurrencyInventory operator+= (CurrencyInventory lhs, Item* rhs) //confusing
 	{
 		lhs.Items.push_back(rhs);
 	}
@@ -171,15 +171,17 @@ public:
 	virtual ~CurrencyInventory() {};
 };
 
-class TradeInventory : public InventoryBase
+class TradeInventory : public NormalInventory
 {
 public:
-	std::list<Inventory::Item*> GetTradeWindowItems(int inventorySide, bool stashLoaded);
-	bool ContainsItem(Inventory::TradeWindowSide side, wstring itemName, int quantity);
+	std::list<Item*> GetTradeWindowItems(int inventorySide, bool stashLoaded);
+	bool ContainsItem(Inventory::TradeWindowSide side, wstring itemName, int quantity, bool fullStashLoaded);
 	
 	Inventory::TradeWindowSide side;
 
-	virtual bool DoesItemFitInSlots(Inventory::Item* itm, int CellX, int CellY) { return false; }
+	virtual bool DoesItemFitInSlots(Item* itm, int CellX, int CellY) { return false; }
+
+	int OccupiedCells[12][5]; //12 by 5 ingame
 
 	virtual ~TradeInventory() {};
 };
