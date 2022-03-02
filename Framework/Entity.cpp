@@ -132,64 +132,88 @@ UINT32 Entity::GetUniqueID()
 	return 0;
 }
 
-void Entity::FillComponentList() //most common cause of crashing at 3.16
+bool Entity::AddComponent(UINT64 Address)
 {
-	UINT64 CurrentAddress = this->ComponentLookupAddress; //will be at dwJunk1 on a random index
-	CurrentAddress += 0x08;
+	if (Robot->DebugMode)
+	{
+		printf("[DEBUG] AddComponent called: %llX\n", Address);
+	}
+
+	UINT64 NamePtr = DereferenceSafe<UINT64>(Address);
+
+	if (NamePtr > 0x7FF600000010 && NamePtr < 0x7FF7FFFFFFFF)
+	{
+		UINT32 Index = DereferenceSafe<UINT32>(Address + sizeof(UINT64));
+
+		if (Index >= 0 && Index < 20)
+		{
+			bool duplicate = false;
+
+			for each(NewComponentListNode* C in this->ComponentList)
+			{
+				if (Index == C->Index)
+				{
+					duplicate = true;
+				}
+			}
+
+			if (!duplicate)
+			{
+				NewComponentListNode* CLN = new NewComponentListNode();
+				CLN->Name = std::string((const char*)NamePtr);
+				CLN->Index = Index;
+				CLN->NamePtrAddress = NamePtr;
+				CLN->IndexPtr = Address + sizeof(UINT64);
+
+				UINT64 ComponentAddress = (UINT64)(this->ComponentListAddress + (sizeof(uint64_t) * CLN->Index));
+				ComponentAddress = DereferenceSafe<UINT64>(ComponentAddress);
+
+				CLN->ComponentAddress = ComponentAddress;
+
+				this->ComponentList.push_back(CLN);
+
+				return true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	return false;
+}
+
+void Entity::FillComponentList()
+{
+	if (Robot->DebugMode)
+	{
+		printf("[DEBUG] FillComponentList called.\n");
+	}
+
+	UINT64 CurrentAddress = this->ComponentLookupAddress + 8; //will be at dwJunk1 on a random index
 	int count = 0;
 
-	if (this->ComponentCount == 0)
+	if (this->ComponentCount == 0 || CurrentAddress == NULL)
 		return;
 
 	while (count < this->ComponentCount)
 	{
-		char ComponentName[256] = { 0 };
-
-		UINT64 JunkRead = DereferenceSafe<UINT64>(CurrentAddress);
-
-		if (JunkRead > 0x7FF600000000 && JunkRead < 0x7FF7FFFFFFFF)
-		{	
-			__try
-			{
-				NewComponentListNode* CLN = new NewComponentListNode();
-
-				CLN->NamePtrAddress = CurrentAddress;
-
-				CurrentAddress += 0x08;
-
-				CLN->IndexPtr = CurrentAddress;
-
-				CurrentAddress += 0x08;
-
-				CLN->NamePtrAddress = DereferenceSafe<UINT64>(CLN->NamePtrAddress);
-				CLN->Index = DereferenceSafe<UINT32>(CLN->IndexPtr);
-
-				if (DereferenceSafe<UINT64>(CLN->IndexPtr) != NULL)
-				{
-					if (CLN->NamePtrAddress >= 0x7FF600000000 && CLN->NamePtrAddress < 0x7FF7FFFFFFFF)
-					{
-						if (CLN->Index >= 0 && CLN->Index < 25)
-						{
-							strcpy_s(CLN->Name, 50, (char*)CLN->NamePtrAddress);
-
-							this->ComponentList.push_back(CLN);
-							count += 1;
-						}
-					}
-				}
-
-			}
-			__except (EXCEPTION_EXECUTE_HANDLER) { continue; }
-	
+		if (AddComponent(CurrentAddress))
+		{
+			CurrentAddress += 0x10;
+			count += 1;
 		}
 		else
-		{		
-			//printf("Component read ..\n");
-			CurrentAddress += sizeof(UINT64);
-			continue;
+		{
+			CurrentAddress += 0x8;
 		}
-		
 	}
+
 }
 
 void Entity::ClearComponentList()
