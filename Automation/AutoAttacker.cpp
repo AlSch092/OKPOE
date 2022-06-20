@@ -14,6 +14,27 @@ AutoAttacker::AutoAttacker()
 	//int skillsAdded = FillActorSkillList();
 }
 
+//void AutoAttacker::Action(UINT16 SkillId, DWORD SelectedEntityID, Vector2* AtPosition) //ingame function call to send player input, one function handles all types of input (interaction, attacks, moving, etc), function has optional entity* argument for interactions.
+//{
+//	typedef void(*ActionFunction)(UINT64, UINT16, DWORD, Vector2*);
+//	UINT64 Base = (UINT64)GetModuleHandleA(NULL);
+//
+//	UINT64 Address = Base + Offsets::Pointers::LocalEntity;
+//	UINT64 Ptr = ReadPointer<UINT64>(Address, Offsets::Pointers::LocalEntity2); //2nd offset
+//
+//	if (Ptr != -1)
+//	{
+//		if ((UINT64)(Base + Offsets::PlayerInput > Base) //make sure our offset is not set to 0 (offsets are fed by a server to make the software more or less uncrackable at a static level, this example does not use server-sent offsets)
+//		{
+//			ActionFunction AF = (ActionFunction)(Base + Offsets::PlayerInput);
+//			if (SkillId == Input::InputIds::INTERACTION)
+//				(*AF)(Ptr, SkillId, SelectedEntityID, 0);
+//			else
+//				(*AF)(Ptr, SkillId, 0, AtPosition); 
+//		}
+//	}
+//}
+
 void AutoAttacker::CastRandomSkill(Entity* e)
 {
 	if (this->ActorSkills.size() == 0)
