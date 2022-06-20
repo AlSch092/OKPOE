@@ -70,43 +70,42 @@ class AutoPlayer
 {
 	public:
   
-  struct lua_State* LUAController; //lua script object
-  static Entity* GetLocalPlayer();
-  
+	struct lua_State* LUAController; //lua script object
+	static Entity* GetLocalPlayer();
 	bool IsLoopingScript = false;
-  bool IsRandomizingScriptName = false;
-	char* ScriptBuffer;
+        bool IsRandomizingScriptName = false;
+        char* ScriptBuffer;
   
-  std::queue<Input::Inputs*>* InputQueue = new std::queue<Input::Inputs*>; //old method of moving + actions, not longer needed
+        queue<Input::Inputs*>* InputQueue = new std::queue<Input::Inputs*>; //old method of moving + actions, not longer needed
   
-  AutoSeller* Seller = NULL; //Trade bot
-  AutoAttacker* Attacker = NULL; //attacker bot
-	AutoFlask* Flasker = NULL; //flasking bot
+        AutoSeller* Seller = NULL; //Trade bot
+        AutoAttacker* Attacker = NULL; //attacker bot
+        AutoFlask* Flasker = NULL; //flasking bot
   
-  //Handles
-	HANDLE ScriptingThread = NULL;
-  HANDLE AutoFlaskThread = NULL;
-  HANDLE InputThread = NULL;
-  HANDLE FollowPlayerThread = NULL;
+        //Handles
+        HANDLE ScriptingThread = NULL;
+        HANDLE AutoFlaskThread = NULL;
+        HANDLE InputThread = NULL;
+        HANDLE FollowPlayerThread = NULL;
   
-  bool AutoLooting = false;
+        bool AutoLooting = false;
   
-  bool AutoFlasking = false;
-  bool AutoReviving = false;
+        bool AutoFlasking = false;
+        bool AutoReviving = false;
 	bool ReviveInSameMap = false;
-  bool IsFollowingActor = false;
-  bool isAutoOpeningChests = false;
-  bool IsAutoChangingAreas = false;
+        bool IsFollowingActor = false;
+        bool isAutoOpeningChests = false;
+        bool IsAutoChangingAreas = false;
   
-  void Action(UINT16 SkillId, DWORD SelectedEntityID, Vector2* AtPosition);
+	void Action(UINT16 SkillId, DWORD SelectedEntityID, Vector2* AtPosition);
 	void EndAction();
 	void Interaction(uint32_t entityId, uint16_t actionId);
   
-  list<Entity*> GroundItemList;
+        list<Entity*> GroundItemList;
 	list<Entity*> EntityList;
 	list<Entity*> PlayerList;
   
-  list<Item*> FlaskList;
+        list<Item*> FlaskList;
   
  	static void HandleInputQueue(); //thread func
 	void BeginHandlingInput();
@@ -114,26 +113,26 @@ class AutoPlayer
 	static void FollowPlayer();
 	void BeginAutoFollow();
   
-  static void HandleEntitySpawn(UINT64 EntAddr);
-  static void HandleOnAreaChange();
+        static void HandleEntitySpawn(UINT64 EntAddr);
+        static void HandleOnAreaChange();
   
-  Entity* FollowingPlayer;
+        Entity* FollowingPlayer;
   
-  bool IsCharacterStuck();
+        bool IsCharacterStuck();
   
-  std::string ReadableAreaName;
+        std::string ReadableAreaName;
 	std::string NumberedAreaName;
   
-  static void AutolootItems();
-  static void AutoOpenChests();
+        static void AutolootItems();
+        static void AutoOpenChests();
   
-  uint32_t WaypointId = 0;
+        uint32_t WaypointId = 0;
 	bool InTown = false;
 	bool Disconnected = false;
   
-  list <wstring> itemsToStash;
+        list <wstring> itemsToStash;
 	list <wstring> itemsToSell;
   
-  bool StashItems();
-	bool SellItemsToNPC();
+        bool StashItems();
+        bool SellItemsToNPC();
 }
