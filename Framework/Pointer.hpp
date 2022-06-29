@@ -38,3 +38,13 @@ T DereferenceSafeWithAddedOffset(UINT64 ulAddress, INT64 Offset)
 	}
 	__except (EXCEPTION_EXECUTE_HANDLER) { return (T)NULL; }
 }
+
+template <class T>
+T Write(UINT64 ulAddress, T value) //there is almost no reason to ever write memory on PoE, game is 95% server sided however exploits do exist within that 5% or so that is client-sided
+{
+	__try
+	{
+		*(T*)ulAddress = value;
+	}
+	__except (EXCEPTION_EXECUTE_HANDLER) { return (T)NULL; }
+}
