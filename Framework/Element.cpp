@@ -43,18 +43,11 @@ wchar_t* Element::GetLabel(UINT64 ElementAddress)
 	if (ElementAddress == NULL)
 		return NULL;
 
-	printf("GetLabel: %llx\n", ElementAddress);
-
 	auto NextPtr = DereferenceSafe<UINT64>(ElementAddress + Offsets::Element::Label);
 	auto labelCharCount = DereferenceSafe<UINT32>(ElementAddress + Offsets::Element::LabelCharacterCount);
 
-	MessageBoxA(0, 0, 0, 0);
-
 	if (labelCharCount > 0 && labelCharCount < 45)
 	{
-		printf("Element contains label with %d length...\n", labelCharCount);
-		printf("LabelPtr: %llX\n", NextPtr);
-
 		if (NextPtr)
 		{
 			UINT64 PtrLabel = NextPtr + Offsets::Element::Label_2;
@@ -62,7 +55,6 @@ wchar_t* Element::GetLabel(UINT64 ElementAddress)
 
 			if (wcslen(pLabel) == labelCharCount)
 			{			
-				wprintf(L"%s\n", pLabel);
 				return pLabel;		
 			}
 			else
@@ -72,7 +64,6 @@ wchar_t* Element::GetLabel(UINT64 ElementAddress)
 				
 				if (wcslen(pLabel) == labelCharCount)
 				{		
-					wprintf(L"%s\n", pLabel);
 					return pLabel;
 				}
 			}
