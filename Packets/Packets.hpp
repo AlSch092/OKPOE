@@ -5,28 +5,20 @@
 #include <random>
 #include <string>
 
-struct OutPacket
-{
-	byte padding_1[0xE8];
-	UINT64 Unk1;
-	byte padding_2[0x90];
-	UINT64 LengthPrev; //0x180 -> moved into R8 then R8 moved into +188.
-	UINT64 Length; //0x188
-	byte padding_3[0x18];
-	LPBYTE PtrBuffer;
-};
-
 namespace PacketHelper
 {
+	std::string randomStr(size_t size);
+	std::wstring randomWStr(size_t size);
+
+	uint16_t changeEndianness16(UINT16 val);
+	int32_t changeEndianness32(int32_t val);
+
 	LPBYTE ToPacketFormat(CHAR* input);
-	std::string* ToString(LPBYTE packetStr, int byteLength);
+	std::string ToString(LPBYTE packetStr, int byteLength);
+
 	int GetPacketLength(CHAR* input);
+
 	void CreatePacket(LPBYTE data, UINT length);
 
-	//typedef int(*SendOutbound)(UINT64 SendClass); 
+	void SendPacket(UINT64 SendClass, LPBYTE Data, UINT64 Length);
 };
-
-std::string randomStr(size_t size);
-std::wstring randomWStr(size_t size);
-int32_t changeEndianness32(int32_t val);
-UINT16 changeEndianness16(UINT16 val);
