@@ -1,7 +1,7 @@
 # OKPOE
-Automation &amp; scripting tool for Path of Exile + network emulation.
+Automation &amp; scripting tool for Path of Exile + network emulation. Updated and working well for latest patches.
 
-For educational purposes.. what's uploaded here is not the full project!
+![Alt text](./img.jpg?raw=true "Sample")
 
 # Updated: Jan 21 2023  
 -Working on refactoring code, cleaned up the .ASM files, everything works great lately besides one occasional crash issue with std::string compares  
