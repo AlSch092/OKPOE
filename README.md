@@ -1,7 +1,9 @@
 # OKPOE
-Automation &amp; scripting tool for Path of Exile + network emulation. Updated and working well for latest patches.
+Automation &amp; scripting tool for Path of Exile + network emulation. Updated and working well for latest patches.  
 
-![Alt text](gopoe.PNG?raw=true "Sample")
+Includes: Monster attacking, movement, looting, inventory management, flasking/healing, element reading, network emulation, and more!
+
+![Alt text](gopoe.PNG?raw=true "Sample")  
 
 # Updated: Jan 21 2023  
 -Working on refactoring code, cleaned up the .ASM files, everything works great lately besides one occasional crash issue with std::string compares  
