@@ -7,8 +7,7 @@ Includes: Monster attacking, movement, looting, inventory management, flasking/h
 
 # Updated: March 2024  
 - Full and final upload of all files, no further development will be done on this project
-- Still requires a server (can be localhost) to feed memory addresses to the client, may be released soon in a seperate project
-- Was in its best/fully functional state around late 2023, with map botting working fluently
+- Still requires a server (can be localhost) to feed memory addresses to the client -> This can be found in the `OffsetServer` directory, and is written as a C# project
 
 # Updated: Jan 21 2023  
 -Working on refactoring code, cleaned up the .ASM files, everything works great lately besides one occasional crash issue with std::string compares  
