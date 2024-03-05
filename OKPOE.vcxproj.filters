@@ -1,0 +1,459 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="disasm-lib">
+      <UniqueIdentifier>{756076e2-a718-4806-933b-4b15091cad11}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Anticrack">
+      <UniqueIdentifier>{43ce2478-15b7-49d2-81d8-b48e81da22e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LUA">
+      <UniqueIdentifier>{95dad3f1-b2eb-48af-bafa-a9e500228817}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utilities">
+      <UniqueIdentifier>{6bd159d5-ddfe-4c15-8e1f-8fcfd4fa4f18}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Constants">
+      <UniqueIdentifier>{1c56ac20-1967-4a09-bc93-46b500edbf28}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ASM">
+      <UniqueIdentifier>{ea9c770c-9453-49d1-b798-474df788b01b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Classes">
+      <UniqueIdentifier>{aa5b023f-4c07-4ea7-b8bc-ae724ddd5ab8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Components">
+      <UniqueIdentifier>{5ce9c69a-f3b0-4315-8c67-615ed9322082}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Packets">
+      <UniqueIdentifier>{dd230e06-a441-419b-be29-82daf5956eb4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Automation">
+      <UniqueIdentifier>{6d48ac67-f7e6-4580-95c1-cb2f9f7ef7ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="locale">
+      <UniqueIdentifier>{1664c651-1c45-4cb7-b5a6-cc72383dca25}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="locale\zh_cn">
+      <UniqueIdentifier>{5b8764ee-2da2-4a09-a298-6274adc06aa2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IN-GAME GUI">
+      <UniqueIdentifier>{0b93489c-7739-4c70-8d6d-bef4c2ce35bf}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="DLLMain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="disasm-lib\cpu.c">
+      <Filter>disasm-lib</Filter>
+    </ClCompile>
+    <ClCompile Include="disasm-lib\disasm.c">
+      <Filter>disasm-lib</Filter>
+    </ClCompile>
+    <ClCompile Include="disasm-lib\disasm_x86.c">
+      <Filter>disasm-lib</Filter>
+    </ClCompile>
+    <ClCompile Include="disasm-lib\mhook.cpp">
+      <Filter>disasm-lib</Filter>
+    </ClCompile>
+    <ClCompile Include="disasm-lib\misc.c">
+      <Filter>disasm-lib</Filter>
+    </ClCompile>
+    <ClCompile Include="NetLogger.cpp">
+      <Filter>Anticrack</Filter>
+    </ClCompile>
+    <ClCompile Include="Hacks.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Hooks.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Entity.cpp">
+      <Filter>Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="Packets.cpp">
+      <Filter>Packets</Filter>
+    </ClCompile>
+    <ClCompile Include="Actor.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="WorldItem.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Positioned.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Targetable.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Life.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Chest.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="PacketBuilder.cpp">
+      <Filter>Packets</Filter>
+    </ClCompile>
+    <ClCompile Include="AutoPlayer.cpp">
+      <Filter>Automation</Filter>
+    </ClCompile>
+    <ClCompile Include="Aim.cpp">
+      <Filter>Automation</Filter>
+    </ClCompile>
+    <ClCompile Include="NetCipher.cpp">
+      <Filter>Anticrack</Filter>
+    </ClCompile>
+    <ClCompile Include="Scripter.cpp">
+      <Filter>LUA</Filter>
+    </ClCompile>
+    <ClCompile Include="FileIO.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Sockets.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="buffs.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectMagicProperties.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="AutoUpdate.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="Flask.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Mods.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Hotkeys.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="MinimapIcon.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Autotrader.cpp">
+      <Filter>Automation</Filter>
+    </ClCompile>
+    <ClCompile Include="Stack.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Base.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SkillGems.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Inventory.cpp">
+      <Filter>IN-GAME GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Element.cpp">
+      <Filter>IN-GAME GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="AutoAttacker.cpp">
+      <Filter>Automation</Filter>
+    </ClCompile>
+    <ClCompile Include="Monster.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Component.cpp">
+      <Filter>Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="Inventories.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="HideProcess.cpp">
+      <Filter>Anticrack</Filter>
+    </ClCompile>
+    <ClCompile Include="AutoFlask.cpp">
+      <Filter>Automation</Filter>
+    </ClCompile>
+    <ClCompile Include="Delve.cpp">
+      <Filter>Automation</Filter>
+    </ClCompile>
+    <ClCompile Include="BlightTower.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Declarations.cpp">
+      <Filter>ASM</Filter>
+    </ClCompile>
+    <ClCompile Include="OS.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="MainForm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AutoLogin.cpp">
+      <Filter>Automation</Filter>
+    </ClCompile>
+    <ClCompile Include="TaskHelper.cpp">
+      <Filter>Automation</Filter>
+    </ClCompile>
+    <ClCompile Include="MultiClient.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="ElementBase.cpp">
+      <Filter>IN-GAME GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Pattern.cpp">
+      <Filter>Constants</Filter>
+    </ClCompile>
+    <ClCompile Include="GroundItem.cpp">
+      <Filter>Classes</Filter>
+    </ClCompile>
+    <ClCompile Include="AntiDebug.cpp">
+      <Filter>Anticrack</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="disasm-lib\cpu.h">
+      <Filter>disasm-lib</Filter>
+    </ClInclude>
+    <ClInclude Include="disasm-lib\disasm.h">
+      <Filter>disasm-lib</Filter>
+    </ClInclude>
+    <ClInclude Include="disasm-lib\disasm_x86.h">
+      <Filter>disasm-lib</Filter>
+    </ClInclude>
+    <ClInclude Include="disasm-lib\disasm_x86_tables.h">
+      <Filter>disasm-lib</Filter>
+    </ClInclude>
+    <ClInclude Include="MainForm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="disasm-lib\mhook.h">
+      <Filter>disasm-lib</Filter>
+    </ClInclude>
+    <ClInclude Include="disasm-lib\misc.h">
+      <Filter>disasm-lib</Filter>
+    </ClInclude>
+    <ClInclude Include="NetLogger.hpp">
+      <Filter>Anticrack</Filter>
+    </ClInclude>
+    <ClInclude Include="LUA\lauxlib.h">
+      <Filter>LUA</Filter>
+    </ClInclude>
+    <ClInclude Include="LUA\lua.h">
+      <Filter>LUA</Filter>
+    </ClInclude>
+    <ClInclude Include="LUA\lua.hpp">
+      <Filter>LUA</Filter>
+    </ClInclude>
+    <ClInclude Include="LUA\luaconf.h">
+      <Filter>LUA</Filter>
+    </ClInclude>
+    <ClInclude Include="LUA\lualib.h">
+      <Filter>LUA</Filter>
+    </ClInclude>
+    <ClInclude Include="Hacks.hpp">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Hooks.hpp">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Pointer.hpp">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Offsets.hpp">
+      <Filter>Constants</Filter>
+    </ClInclude>
+    <ClInclude Include="Structures.hpp">
+      <Filter>Constants</Filter>
+    </ClInclude>
+    <ClInclude Include="Entity.hpp">
+      <Filter>Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Components.hpp">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="PacketWriter.hpp">
+      <Filter>Packets</Filter>
+    </ClInclude>
+    <ClInclude Include="Packets.hpp">
+      <Filter>Packets</Filter>
+    </ClInclude>
+    <ClInclude Include="Declarations.hpp">
+      <Filter>ASM</Filter>
+    </ClInclude>
+    <ClInclude Include="Actor.hpp">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Positioned.hpp">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="WorldItem.hpp">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Targetable.hpp">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Life.hpp">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Chest.hpp">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="AutoPlayer.hpp">
+      <Filter>Automation</Filter>
+    </ClInclude>
+    <ClInclude Include="Aim.hpp">
+      <Filter>Automation</Filter>
+    </ClInclude>
+    <ClInclude Include="NetCipher.hpp">
+      <Filter>Anticrack</Filter>
+    </ClInclude>
+    <ClInclude Include="Scripter.hpp">
+      <Filter>LUA</Filter>
+    </ClInclude>
+    <ClInclude Include="FileIO.hpp">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Sockets.hpp">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Buffs.hpp">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectMagicProperties.hpp">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.hpp">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="AutoUpdate.hpp">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Flask.hpp">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Mods.hpp">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Hotkeys.hpp">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="enums.hpp">
+      <Filter>Constants</Filter>
+    </ClInclude>
+    <ClInclude Include="MinimapIcon.hpp">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Autotrader.hpp">
+      <Filter>Automation</Filter>
+    </ClInclude>
+    <ClInclude Include="Stack.hpp">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Base.hpp">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SkillGems.hpp">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Inventory.hpp">
+      <Filter>IN-GAME GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Element.hpp">
+      <Filter>IN-GAME GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="AutoAttacker.hpp">
+      <Filter>Automation</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerData.hpp">
+      <Filter>Constants</Filter>
+    </ClInclude>
+    <ClInclude Include="Monster.hpp">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Component.hpp">
+      <Filter>Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="Inventories.hpp">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="HideProcess.hpp">
+      <Filter>Anticrack</Filter>
+    </ClInclude>
+    <ClInclude Include="PacketBuilder.hpp">
+      <Filter>Packets</Filter>
+    </ClInclude>
+    <ClInclude Include="AutoFlask.hpp">
+      <Filter>Automation</Filter>
+    </ClInclude>
+    <ClInclude Include="Delve.hpp">
+      <Filter>Automation</Filter>
+    </ClInclude>
+    <ClInclude Include="BlightTower.hpp">
+      <Filter>Components</Filter>
+    </ClInclude>
+    <ClInclude Include="OS.hpp">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="AutoLogin.hpp">
+      <Filter>Automation</Filter>
+    </ClInclude>
+    <ClInclude Include="TaskHelper.hpp">
+      <Filter>Automation</Filter>
+    </ClInclude>
+    <ClInclude Include="MultiClient.hpp">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="ElementBase.hpp">
+      <Filter>IN-GAME GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Pattern.hpp">
+      <Filter>Constants</Filter>
+    </ClInclude>
+    <ClInclude Include="GroundItem.hpp">
+      <Filter>Classes</Filter>
+    </ClInclude>
+    <ClInclude Include="locale.hpp">
+      <Filter>locale</Filter>
+    </ClInclude>
+    <ClInclude Include="AntiDebug.hpp">
+      <Filter>Anticrack</Filter>
+    </ClInclude>
+    <ClInclude Include="Opcodes.hpp">
+      <Filter>Packets</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="MainForm.resx">
+      <Filter>Resource Files</Filter>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="Hook.asm">
+      <Filter>ASM</Filter>
+    </MASM>
+    <MASM Include="Obfuscate.asm">
+      <Filter>ASM</Filter>
+    </MASM>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="lua52.lib">
+      <Filter>LUA</Filter>
+    </Library>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="TODO.txt" />
+  </ItemGroup>
+</Project>
