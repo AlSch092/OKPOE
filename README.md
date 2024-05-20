@@ -1,6 +1,6 @@
 # OKPOE: Automation &amp; scripting tool for Path of Exile
 
-Includes: Monster attacking, movement, looting, inventory management, flasking/healing, element reading, network emulation, and more!
+Includes: Monster attacking, movement, looting, inventory management, flasking/healing, element reading, packet sending, and more!
 
 ![Alt text](gopoe.PNG?raw=true "Sample")  
 
