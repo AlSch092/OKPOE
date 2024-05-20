@@ -1,5 +1,5 @@
 # OKPOE
-Automation &amp; scripting tool for Path of Exile + network emulation. Updated and working well for latest patches.  
+Automation &amp; scripting tool for Path of Exile + network emulation. 
 
 Includes: Monster attacking, movement, looting, inventory management, flasking/healing, element reading, network emulation, and more!
 
